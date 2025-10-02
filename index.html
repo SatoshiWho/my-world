@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video + Chart IG Ratio</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+  <style>
+    body {
+      background: black;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      cursor: pointer;
+    }
+
+    .video-box {
+      width: 540px;
+      aspect-ratio: 4 / 5;
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+      border: 3px solid red;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .video-box video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .click-note {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      background: rgba(0,0,0,0.5);
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    canvas {
+      max-width: 600px;
+      max-height: 600px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="video-box">
+    <video id="myVideo" autoplay loop muted playsinline controls>
+      <source src="video.mp4" type="video/mp4">
+      Browser kamu tidak mendukung video tag.
+    </video>
+    <div class="click-note">Klik di mana saja untuk aktifkan suara 🎵</div>
+  </div>
+
+  <canvas id="myChart"></canvas>
+
+  <script>
+    const video = document.getElementById('myVideo');
+
+    // Chart setup
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const data = {
+      labels: ['BTC 40%', 'ETH 20%', 'XRP 10%', 'DOGE 5%', 'PEPE 5%', 'SOL 10%', 'PLASMA 10%'],
+      datasets: [{
+        data: [40, 20, 10, 5, 5, 10, 10],
+        backgroundColor: ['#f39c12','#3498db','#9b59b6','#2ecc71','#e74c3c','#1abc9c','#e84393'],
+        borderWidth: 0
+      }]
+    };
+
+    const options = {
+      plugins: {
+        legend: { display: true, labels: { color: 'white', font: { size: 14 } } },
+        datalabels: {
+          color: 'white',
+          font: { weight: 'bold', size: 14 },
+          formatter: (value, context) => context.chart.data.labels[context.dataIndex]
+        }
+      },
+      animation: false
+    };
+
+    const myChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: data,
+      options: options,
+      plugins: [ChartDataLabels]
+    });
+
+    // Rotasi chart
+    let angle = 0;
+    function rotateChart() {
+      angle += 0.05;
+      myChart.options.rotation = angle;
+      myChart.update();
+      requestAnimationFrame(rotateChart);
+    }
+    rotateChart();
+
+    // Satu klik untuk unmute video
+    function handleFirstClick() {
+      video.muted = false;
+      video.play(); // pastikan video jalan
+      document.body.removeEventListener('click', handleFirstClick);
+      document.querySelector('.click-note').style.display = 'none';
+    }
+
+    document.body.addEventListener('click', handleFirstClick);
+  </script>
+
+</body>
+</html>
